@@ -1,0 +1,35 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClockifyInvoice", "ClockifyInvoice\ClockifyInvoice.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+EndProject
+Project("{840C416C-B8F3-42BC-B0DD-F6BB14C9F8CB}") = "ClockifyInvoceInstaller", "ClockifyInvoceInstaller\ClockifyInvoceInstaller.aiproj", "{3285D382-B826-4B0A-A563-D6BFE477455A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		All|Any CPU = All|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.All|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.All|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3285D382-B826-4B0A-A563-D6BFE477455A}.All|Any CPU.ActiveCfg = DefaultBuild
+		{3285D382-B826-4B0A-A563-D6BFE477455A}.All|Any CPU.Build.0 = DefaultBuild
+		{3285D382-B826-4B0A-A563-D6BFE477455A}.Debug|Any CPU.ActiveCfg = DefaultBuild
+		{3285D382-B826-4B0A-A563-D6BFE477455A}.Debug|Any CPU.Build.0 = DefaultBuild
+		{3285D382-B826-4B0A-A563-D6BFE477455A}.Release|Any CPU.ActiveCfg = DefaultBuild
+		{3285D382-B826-4B0A-A563-D6BFE477455A}.Release|Any CPU.Build.0 = DefaultBuild
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A56040B0-4218-46A5-9881-3805D13EF633}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,5 @@
+.vs/
+ClockifyInvoice/ClockifyInvoice.csproj.user
+ClockifyInvoice/bin/Debug/net8.0-windows/BouncyCastle.Cryptography.dll
+ClockifyInvoice/bin/
+ClockifyInvoice/obj/
