@@ -110,7 +110,7 @@ namespace ClockifyInvoice.Forms
         private TabPage BuildInvoiceTab()
         {
             var tab = new TabPage("  Invoice Settings  ");
-            var panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(16) };
+            var panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(16), AutoScroll = true };
             tab.Controls.Add(panel);
 
             int y = 16;

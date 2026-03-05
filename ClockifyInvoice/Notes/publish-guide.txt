@@ -1,4 +1,4 @@
 To publish a standalone .exe:
 
-CD D:\eviCORE-CODE\ClockifyInvoice\ClockifyInvoice
+CD D:\eviCORE-CODE\ClockifyInvoce\ClockifyInvoice
 dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
