@@ -68,4 +68,11 @@ namespace ClockifyInvoice.Models
         public decimal PrecomputedAmount { get; set; }
         public decimal Amount => PrecomputedAmount > 0 ? PrecomputedAmount : Hours * Rate;
     }
+
+    public class CustomEntry
+    {
+        public string Date { get; set; } = "";          // optional — empty string means no date
+        public string Description { get; set; } = "";
+        public decimal Amount { get; set; }
+    }
 }

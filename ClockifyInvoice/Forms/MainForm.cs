@@ -11,8 +11,10 @@ namespace ClockifyInvoice.Forms
 
         private InvoiceProfile _profile = null!;
         private List<ClockifyRecord> _records = new();
+        private List<CustomEntry> _customEntries = new();
         private DataGridView dgvRecords = null!;
         private DataGridView dgvLineItems = null!;
+        private DataGridView dgvCustomEntries = null!;
 
         // Top controls
         private Label lblCsvFile = null!, lblStatus = null!;
@@ -83,7 +85,7 @@ namespace ClockifyInvoice.Forms
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
                 Cursor = Cursors.Hand,
-                Enabled = false
+                Enabled = false   // enabled by UpdateGenerateButton()
             };
             btnGenerateInvoice.FlatAppearance.BorderSize = 0;
             btnGenerateInvoice.Click += BtnGenerateInvoice_Click;
@@ -163,7 +165,7 @@ namespace ClockifyInvoice.Forms
 
             lblStatus = new Label
             {
-                Text = "Ready. Load a Clockify CSV export to begin.",
+                Text = "Ready. Load a CSV or add custom entries to create an invoice.",
                 Location = new Point(16, 10),
                 Size = new Size(500, 18),
                 ForeColor = Color.FromArgb(160, 175, 200),
@@ -185,8 +187,8 @@ namespace ClockifyInvoice.Forms
             // ── SPLIT CONTENT ──────────────────────────────────────────────────
             pnlSplit = new Panel { Dock = DockStyle.Fill };
 
-            // Top half: raw records
-            var pnlRaw = new Panel { Dock = DockStyle.Top, Height = 200, Padding = new Padding(16, 12, 16, 0) };
+            // Top third: raw records
+            var pnlRaw = new Panel { Dock = DockStyle.Top, Height = 180, Padding = new Padding(16, 12, 16, 0) };
             var lblRaw = new Label
             {
                 Text = "RAW RECORDS FROM CSV",
@@ -201,10 +203,127 @@ namespace ClockifyInvoice.Forms
             pnlRaw.Controls.Add(dgvRecords);
             pnlRaw.Controls.Add(lblRaw);
 
-            // Splitter
-            var splitter = new Splitter { Dock = DockStyle.Top, Height = 6, BackColor = Color.FromArgb(220, 225, 235) };
+            var splitter1 = new Splitter { Dock = DockStyle.Top, Height = 6, BackColor = Color.FromArgb(220, 225, 235) };
 
-            // Bottom half: invoice line items
+            // Middle: custom entries
+            var pnlCustom = new Panel { Dock = DockStyle.Top, Height = 170, Padding = new Padding(16, 8, 16, 0) };
+            var lblCustom = new Label
+            {
+                Text = "CUSTOM ENTRIES",
+                Dock = DockStyle.Top,
+                Height = 22,
+                ForeColor = Color.FromArgb(44, 95, 138),
+                Font = new Font("Segoe UI", 8.5f, FontStyle.Bold)
+            };
+
+            // Custom entry input row
+            var pnlCustomInput = new Panel { Dock = DockStyle.Top, Height = 36 };
+
+            var txtCustomDate = new TextBox
+            {
+                PlaceholderText = "Date (optional, e.g. 2026-04-01)",
+                Location = new Point(0, 6),
+                Size = new Size(210, 26),
+                Font = new Font("Segoe UI", 9f)
+            };
+
+            var txtCustomDesc = new TextBox
+            {
+                PlaceholderText = "Description *",
+                Location = new Point(218, 6),
+                Size = new Size(320, 26),
+                Font = new Font("Segoe UI", 9f)
+            };
+
+            var txtCustomAmount = new TextBox
+            {
+                PlaceholderText = "Amount * (e.g. 500.00)",
+                Location = new Point(546, 6),
+                Size = new Size(170, 26),
+                Font = new Font("Segoe UI", 9f)
+            };
+
+            var btnAddEntry = new Button
+            {
+                Text = "＋ Add",
+                Location = new Point(724, 4),
+                Size = new Size(80, 30),
+                BackColor = Color.FromArgb(44, 138, 80),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
+            btnAddEntry.FlatAppearance.BorderSize = 0;
+            btnAddEntry.Click += (s, e) =>
+            {
+                var descText = txtCustomDesc.Text.Trim();
+                if (string.IsNullOrEmpty(descText))
+                {
+                    MessageBox.Show("Description is required.", "Missing Field", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                if (!decimal.TryParse(txtCustomAmount.Text.Trim(), out var amount) || amount <= 0)
+                {
+                    MessageBox.Show("Please enter a valid positive amount.", "Invalid Amount", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                _customEntries.Add(new CustomEntry
+                {
+                    Date = txtCustomDate.Text.Trim(),
+                    Description = descText,
+                    Amount = amount
+                });
+
+                txtCustomDate.Clear();
+                txtCustomDesc.Clear();
+                txtCustomAmount.Clear();
+                txtCustomDesc.Focus();
+
+                RefreshCustomEntriesGrid();
+                BuildLineItems();
+                UpdateGenerateButton();
+            };
+
+            var btnRemoveEntry = new Button
+            {
+                Text = "✕ Remove",
+                Location = new Point(812, 4),
+                Size = new Size(90, 30),
+                BackColor = Color.FromArgb(180, 60, 60),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Segoe UI", 9f),
+                Cursor = Cursors.Hand
+            };
+            btnRemoveEntry.FlatAppearance.BorderSize = 0;
+            btnRemoveEntry.Click += (s, e) =>
+            {
+                if (dgvCustomEntries.SelectedRows.Count == 0) return;
+                var idx = dgvCustomEntries.SelectedRows[0].Index;
+                if (idx >= 0 && idx < _customEntries.Count)
+                {
+                    _customEntries.RemoveAt(idx);
+                    RefreshCustomEntriesGrid();
+                    BuildLineItems();
+                    UpdateGenerateButton();
+                }
+            };
+
+            pnlCustomInput.Controls.AddRange(new Control[] { txtCustomDate, txtCustomDesc, txtCustomAmount, btnAddEntry, btnRemoveEntry });
+
+            dgvCustomEntries = CreateGrid();
+            dgvCustomEntries.Dock = DockStyle.Fill;
+
+            pnlCustom.Controls.Add(dgvCustomEntries);
+            pnlCustom.Controls.Add(pnlCustomInput);
+            pnlCustom.Controls.Add(lblCustom);
+
+            var splitter2 = new Splitter { Dock = DockStyle.Top, Height = 6, BackColor = Color.FromArgb(220, 225, 235) };
+
+            // Bottom: invoice line items
             var pnlInvoice = new Panel { Dock = DockStyle.Fill, Padding = new Padding(16, 8, 16, 0) };
             var lblInv = new Label
             {
@@ -221,7 +340,9 @@ namespace ClockifyInvoice.Forms
             pnlInvoice.Controls.Add(lblInv);
 
             pnlSplit.Controls.Add(pnlInvoice);
-            pnlSplit.Controls.Add(splitter);
+            pnlSplit.Controls.Add(splitter2);
+            pnlSplit.Controls.Add(pnlCustom);
+            pnlSplit.Controls.Add(splitter1);
             pnlSplit.Controls.Add(pnlRaw);
 
             // ── ASSEMBLY ───────────────────────────────────────────────────────
@@ -296,13 +417,36 @@ namespace ClockifyInvoice.Forms
 
                 // Build line items
                 BuildLineItems();
-                btnGenerateInvoice.Enabled = true;
+                UpdateGenerateButton();
                 lblStatus.Text = $"Loaded {_records.Count} records from {Path.GetFileName(dlg.FileName)}";
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error reading CSV:\n{ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void UpdateGenerateButton()
+        {
+            btnGenerateInvoice.Enabled = _records.Count > 0 || _customEntries.Count > 0;
+        }
+
+        private void RefreshCustomEntriesGrid()
+        {
+            dgvCustomEntries.DataSource = null;
+            var dt = new System.Data.DataTable();
+            dt.Columns.AddRange(new[]
+            {
+                new System.Data.DataColumn("Date"),
+                new System.Data.DataColumn("Description"),
+                new System.Data.DataColumn("Amount"),
+            });
+            foreach (var e in _customEntries)
+                dt.Rows.Add(
+                    string.IsNullOrEmpty(e.Date) ? "—" : e.Date,
+                    e.Description,
+                    $"{_profile.CurrencySymbol}{e.Amount:F2}");
+            dgvCustomEntries.DataSource = dt;
         }
 
         private void BuildLineItems()
@@ -327,6 +471,20 @@ namespace ClockifyInvoice.Forms
                 .OrderBy(i => i.Date)
                 .ThenBy(i => i.Project)
                 .ToList();
+
+            // Append custom entries as fixed-amount line items
+            foreach (var ce in _customEntries)
+            {
+                lineItems.Add(new InvoiceLineItem
+                {
+                    Date = ce.Date,
+                    Project = "",
+                    Description = ce.Description,
+                    Hours = 0,
+                    Rate = 0,
+                    PrecomputedAmount = ce.Amount
+                });
+            }
 
             dgvLineItems.DataSource = null;
             var dt2 = new System.Data.DataTable();
@@ -397,12 +555,26 @@ namespace ClockifyInvoice.Forms
                             Description = g.Key.Description,
                             Hours = g.Sum(r => r.DurationDecimal),
                             Rate = rate,
-                            PrecomputedAmount = g.Sum(r => r.BillableAmount) // ← use Clockify's amount
+                            PrecomputedAmount = g.Sum(r => r.BillableAmount)
                         };
                     })
                     .OrderBy(i => i.Date)
                     .ThenBy(i => i.Project)
                     .ToList();
+
+                // Append custom entries
+                foreach (var ce in _customEntries)
+                {
+                    lineItems.Add(new InvoiceLineItem
+                    {
+                        Date = ce.Date,
+                        Project = "",
+                        Description = ce.Description,
+                        Hours = 0,
+                        Rate = 0,
+                        PrecomputedAmount = ce.Amount
+                    });
+                }
 
                 var invoiceNumber = _profile.FormattedInvoiceNumber;
                 _pdfGenerator.Generate(dlg.FileName, _profile, lineItems, invoiceNumber, dtpInvoiceDate.Value);

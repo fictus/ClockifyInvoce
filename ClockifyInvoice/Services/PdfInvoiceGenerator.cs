@@ -145,8 +145,10 @@ namespace ClockifyInvoice.Services
                 table.AddCell(MakeCell(item.Date));
                 table.AddCell(MakeCell(item.Project));
                 table.AddCell(MakeCell(item.Description));
-                table.AddCell(MakeCell(item.Hours.ToString("F2"), align: TextAlignment.RIGHT));
-                table.AddCell(MakeCell($"{profile.CurrencySymbol}{item.Rate:F2}", align: TextAlignment.RIGHT));
+                // For custom fixed-amount entries (Hours==0 and Rate==0) show "—" instead of 0.00
+                bool isFixed = item.PrecomputedAmount > 0 && item.Hours == 0 && item.Rate == 0;
+                table.AddCell(MakeCell(isFixed ? "—" : item.Hours.ToString("F2"), align: TextAlignment.RIGHT));
+                table.AddCell(MakeCell(isFixed ? "—" : $"{profile.CurrencySymbol}{item.Rate:F2}", align: TextAlignment.RIGHT));
                 table.AddCell(MakeCell($"{profile.CurrencySymbol}{item.Amount:F2}", bold: true, align: TextAlignment.RIGHT));
             }
 
